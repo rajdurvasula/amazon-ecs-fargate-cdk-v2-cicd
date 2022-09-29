@@ -12,23 +12,32 @@ import { Construct } from 'constructs';
 export class EcsCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
+    
+    const githubUserName = 'rajdurvasula';
+    /*
     const githubUserName = new cdk.CfnParameter(this, "githubUserName", {
         type: "String",
         description: "Github username for source code repository"
     })
+    */
 
+    const githubRepository = 'amazon-ecs-fargate-cdk-v2-cicd';
+    /*
     const githubRepository = new cdk.CfnParameter(this, "githubRespository", {
         type: "String",
         description: "Github source code repository",
         default: "amazon-ecs-fargate-cdk-v2-cicd" 
     })
+    */
 
+    const githubPersonalTokenSecretName = "/my/github/token";
+    /*
     const githubPersonalTokenSecretName = new cdk.CfnParameter(this, "githubPersonalTokenSecretName", {
         type: "String",
         description: "The name of the AWS Secrets Manager Secret which holds the GitHub Personal Access Token for this project.",
         default: "/aws-samples/amazon-ecs-fargate-cdk-v2-cicd/github/personal_access_token" 
     })
+    */
     //default: `${this.stackName}`
 
     const ecrRepo = new ecr.Repository(this, 'ecrRepo');
@@ -118,8 +127,8 @@ export class EcsCdkStack extends cdk.Stack {
 
 
     const gitHubSource = codebuild.Source.gitHub({
-      owner: githubUserName.valueAsString,
-      repo: githubRepository.valueAsString,
+      owner: githubUserName,
+      repo: githubRepository,
       webhook: true, // optional, default: true if `webhookfilteres` were provided, false otherwise
       webhookFilters: [
         codebuild.FilterGroup.inEventOf(codebuild.EventAction.PUSH).andBranchIs('main'),
@@ -190,11 +199,11 @@ export class EcsCdkStack extends cdk.Stack {
 
     const sourceOutput = new codepipeline.Artifact();
     const buildOutput = new codepipeline.Artifact();
-    const nameOfGithubPersonTokenParameterAsString = githubPersonalTokenSecretName.valueAsString
+    const nameOfGithubPersonTokenParameterAsString = githubPersonalTokenSecretName
     const sourceAction = new codepipeline_actions.GitHubSourceAction({
       actionName: 'github_source',
-      owner: githubUserName.valueAsString,
-      repo: githubRepository.valueAsString,
+      owner: githubUserName,
+      repo: githubRepository,
       branch: 'main',
       oauthToken: cdk.SecretValue.secretsManager(nameOfGithubPersonTokenParameterAsString),
       output: sourceOutput
